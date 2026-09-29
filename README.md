@@ -74,18 +74,71 @@ To understand, develop, and contribute to this embodied connectome framework, re
 
 ---
 
-## 3. Data Sources & Overview
+## 3. Connectome Dataset Architecture & Nomenclature Guide
 
 The connectome data is fetched directly from Google Cloud Storage:
 * **Base URL**: `https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/`
 
-### Datasets
+### A. The 3 Primary Datasets
 
-| File Name | Description | Source URL |
-| :--- | :--- | :--- |
-| `body-annotations-male-cns-v1.0-minconf-0.5.feather` | Neuron metadata, classification, soma location, and status labels | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather) |
-| `body-neurotransmitters-male-cns-v1.0.feather` | Predicted and consensus neurotransmitters (acetylcholine, GABA, glutamate, etc.) | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather) |
-| `connectome-weights-male-cns-v1.0-minconf-0.5.feather` | Synaptic connections and weights (synapse count) between pre- and post-synaptic neurons | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather) |
+| File Name | Dimensions | Description | Source URL |
+| :--- | :--- | :--- | :--- |
+| `body-annotations-male-cns-v1.0-minconf-0.5.feather` | $211,577 \times 36$ | Neuron metadata, classification, soma location, and status labels | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather) |
+| `body-neurotransmitters-male-cns-v1.0.feather` | $1,835,518 \times 10$ | Predicted and consensus neurotransmitters (acetylcholine, GABA, glutamate, etc.) | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather) |
+| `connectome-weights-male-cns-v1.0-minconf-0.5.feather` | $151,856,684 \times 3$ | Directed synaptic connections ($A \to B$) and synapse weights | [Download](https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather) |
+
+---
+
+### B. The 4 Levels of Neuron Identification
+
+| Field | Meaning | Scope | Example |
+| :--- | :--- | :--- | :--- |
+| **`bodyId`** | Physical EM Segmentation ID | Unique to this specific specimen | `10001` |
+| **`type`** | General Cell Type Class | Shared across all flies | `DNp01` |
+| **`flywireType`** | Standardized Type in FlyWire | Cross-connectome benchmark | `DNp01` |
+| **`instance`** | Individual Neuron Instance | Unique cell including hemisphere | `DNp01(GF)_R` |
+
+---
+
+### C. Standard Instance Notation & Anatomy
+
+Canonical naming format:
+
+$$\Large \mathbf{\text{[Region / Class]} \, \text{[Cluster / Subregion]} \, \text{[Index]} \, \text{(Functional Nickname)} \, \mathbf{\_} \, \text{[Hemisphere]}}$$
+
+#### Example Breakdown: `DNp01(GF)_R`
+```
+  DN       p         01        (GF)         _R
+  │        │         │          │            │
+  │        │         │          │            └─ Hemisphere: Right (_R)
+  │        │         │          └────────────── Functional Nickname: Giant Fiber
+  │        │         └───────────────────────── Index: Number 01 in this group
+  │        └─────────────────────────────────── Subregion: Posterior tract (p)
+  └──────────────────────────────────────────── Class: Descending Neuron (DN)
+```
+
+---
+
+### D. Major Cell Classes & Nomenclature Conventions
+
+1. **Projection & Command Neurons**:
+   * **`DN` (Descending Neurons)**: Connect brain to VNC to command actions (`DNp01`: Giant Fiber, `DNb01`: Steering).
+   * **`AN` (Ascending Neurons)**: Send sensory/proprioceptive feedback from legs/wings up to brain.
+   * **`IN` (Interneurons)**: Local VNC processing (e.g. `IN18B034_L` following hemilineage codes).
+   * **`MN` (Motor Neurons)**: Innervate muscles (`TTMn_R` = Tergotrochanteral leg jump muscle).
+2. **Visual & Optic Lobe Neurons**:
+   * **`LC` (Lobula Columnar)**: Feature and predator detectors (`LC4`, `LC11`).
+   * **`LPLC` (Lobula Plate-Lobula Columnar)**: Looming expansion detectors (`LPLC2`).
+   * **`VS` / `HS` (Vertical / Horizontal System)**: Wide-field optic flow tangential cells for flight stabilization.
+   * **`T4` / `T5`**: Direction-selective elementary motion detectors.
+3. **Neuropil Local Neurons**:
+   * Named after brain regions: `PVLP` (Posterior Ventrolateral Protocerebrum), `AOTU` (Anterior Optic Tubercle), `GNG` (Gnathal Ganglion - taste/feeding), `SAD` (Saddle - mechanosensory).
+4. **Central Complex (CX) Compass System**:
+   * **`E-PG`**: Compass needle neurons (encode internal heading angle).
+   * **`P-EN`**: Angular velocity integrators (turn tracking).
+   * **`P-FN`**: 2D vector path integration (distance & return navigation vector).
+5. **Hemisphere & Symmetry Suffixes**:
+   * **`_L`**: Left hemisphere | **`_R`**: Right hemisphere | **`_M` / `_C`**: Midline / Unpaired | **`_bi`**: Bilateral.
 
 ---
 
